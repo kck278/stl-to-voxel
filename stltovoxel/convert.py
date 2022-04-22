@@ -14,14 +14,17 @@ def convert_mesh(mesh, resolution=100, parallel=True):
     return convert_meshes([mesh], resolution, parallel)
 
 
-def convert_meshes(meshes, resolution=100, parallel=True):
+def convert_meshes(meshes, resolution=100, parallel=True, merge_meshes=True):
     scale, shift, shape = slice.calculate_scale_shift(meshes, resolution)
     vol = np.zeros(shape[::-1], dtype=np.int8)
 
     for mesh_ind, org_mesh in enumerate(meshes):
         slice.scale_and_shift_mesh(org_mesh, scale, shift)
         cur_vol = slice.mesh_to_plane(org_mesh, shape, parallel)
-        vol[cur_vol] = mesh_ind + 1
+        if merge_meshes:
+            vol[cur_vol] = 1
+        else:
+            vol[cur_vol] = mesh_ind + 1
     return vol, scale, shift
 
 
